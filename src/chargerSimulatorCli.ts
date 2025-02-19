@@ -109,11 +109,14 @@ const usageSections = [
   `)
 
   async function sendStatus(status: string) {
+
     await simulator.centralSystem.StatusNotification({
       connectorId: connectorId,
       errorCode: "NoError",
       status,
     })
+
+    simulator.chargePoint.currentConnectorStatus = status
   }
 
   const commands = {
