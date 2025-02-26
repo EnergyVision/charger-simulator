@@ -189,6 +189,10 @@ export class ChargerSimulator {
   private transactionId = null
   private chargePoint = {
     RemoteStartTransaction: async (req) => {
+      if (!req.connectorId) {
+        req.connectorId = 1
+      }
+      
       return {
         status: this.startTransaction(req, true) ? "Accepted" : "Rejected",
         // status: "Rejected",
