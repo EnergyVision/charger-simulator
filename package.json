@@ -8,6 +8,7 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "start": "ts-node src/chargerSimulatorCli.ts",
+    "start-dev": "yarn start -s ws://127.0.0.1:9999/1.6 -i 00001 -t 5678",
     "prepublishOnly": "tsc",
     "build": "tsc",
     "docs": "typedoc --out docs ./src"
