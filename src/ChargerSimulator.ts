@@ -16,6 +16,8 @@ export interface Config {
   centralSystemEndpoint: string
   chargerIdentity: string
   chargePointPort?: number
+
+  connectorId: number
 }
 
 const defaultConfig: Partial<Config> = {
@@ -189,6 +191,10 @@ export class ChargerSimulator {
   private transactionId = null
   public chargePoint = {
     RemoteStartTransaction: async (req) => {
+      if (!req.connectorId) {
+        req.connectorId = this.config.connectorId
+      }
+      
       return {
         status: this.startTransaction(req, true) ? "Accepted" : "Rejected",
         // status: "Rejected",
