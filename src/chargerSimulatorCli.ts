@@ -33,7 +33,7 @@ const optionList = [
   },
   {
     name: "connectorId",
-    type: String,
+    type: Number,
     description: "ID of the connector to send status when pressing keys.\nDefaults to 1.",
     typeLabel: "{underline ConnectorId}",
     alias: "c",
@@ -80,6 +80,7 @@ const usageSections = [
     centralSystemEndpoint: csURL,
     chargerIdentity: chargerId,
     chargePointPort: cpPort,
+    connectorId: connectorId,
   })
   await simulator.start()
 
