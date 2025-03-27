@@ -187,7 +187,7 @@ export class ChargerSimulator {
   private charged = 0
   private configurationKeys = []
   private transactionId = null
-  private chargePoint = {
+  public chargePoint = {
     RemoteStartTransaction: async (req) => {
       if (!req.connectorId) {
         req.connectorId = 1
@@ -221,6 +221,9 @@ export class ChargerSimulator {
     },
 
     ChangeAvailability: async(req) => {
+      this.chargePoint.currentConnectorStatus = req.type
+      this.chargePoint.currentConnectorId = req.connectorId
+
       return {status: "Accepted"}
     },
 
@@ -240,7 +243,23 @@ export class ChargerSimulator {
       return {status: "Accepted"}
     },
 
+    currentConnectorId: 1,
+    currentConnectorStatus: 'Available',
     TriggerMessage: async (req) => {
+
+      let status = 'Available'
+      if (this.chargePoint.currentConnectorStatus == 'Operative') {
+        status = 'Available'
+      } else {
+        status = 'Unavailable'
+      }
+
+      this.centralSystem.StatusNotification({
+        connectorId: this.chargePoint.currentConnectorId,
+        errorCode: "NoError",
+        status: status,
+      })
+
       return {status: "Accepted"}
     },
 
