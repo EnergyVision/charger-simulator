@@ -99,7 +99,10 @@ const usageSections = [
     p:        send Preparing status
     c:        send Charging status
     e:        send SuspendedEV status
+    v:        send SuspendedEVSE status
     f:        send Finishing status
+    r:        send Reserved status
+    n:        send Unavailable status
     x:        send Faulted status
     
     Transaction on connector ${connectorId}, tag ${idTag}
@@ -149,8 +152,11 @@ const usageSections = [
     a: () => sendStatus("Available"),
     p: () => sendStatus("Preparing"),
     c: () => sendStatus("Charging"),
+    v: () => sendStatus("SuspendedEVSE"),
     e: () => sendStatus("SuspendedEV"),
     f: () => sendStatus("Finishing"),
+    r: () => sendStatus("Reserved"),
+    n: () => sendStatus("Unavailable"),
     x: () => sendStatus("Faulted"),
 
     u: () => simulator.centralSystem.Authorize({idTag}),
