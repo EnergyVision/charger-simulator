@@ -249,18 +249,27 @@ export class ChargerSimulator {
     currentConnectorStatus: 'Available',
     TriggerMessage: async (req) => {
 
-      let status = 'Available'
-      if (this.chargePoint.currentConnectorStatus == 'Operative') {
-        status = 'Available'
-      } else {
-        status = 'Unavailable'
+      if('BootNotification' === req.requestedMessage) {
+        this.centralSystem.BootNotification({
+          chargePointVendor: "OC",
+          chargePointModel: "OCX",
+        })
       }
 
-      this.centralSystem.StatusNotification({
-        connectorId: this.chargePoint.currentConnectorId,
-        errorCode: "NoError",
-        status: status,
-      })
+      if('StatusNotification' === req.requestedMessage) {
+        let status = 'Available'
+        if (this.chargePoint.currentConnectorStatus == 'Operative') {
+          status = 'Available'
+        } else {
+          status = 'Unavailable'
+        }
+
+        this.centralSystem.StatusNotification({
+          connectorId: this.chargePoint.currentConnectorId,
+          errorCode: "NoError",
+          status: status,
+        })
+      }
 
       return {status: "Accepted"}
     },
