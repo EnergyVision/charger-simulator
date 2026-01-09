@@ -59,9 +59,14 @@ export class ChargerSimulator {
     } else {
       const {remote} = await createRpcClient(
         async () => {
+          const clientCertHeader =
+            "-----BEGIN%20CERTIFICATE-----%0AMIICMTCCAdigAwIBAgIUMFwiI5510scr/QfWd4WhxBX+0YswCgYIKoZIzj0EAwIw%0AYDELMAkGA1UEBhMCQkUxFjAUBgNVBAgMDUVhc3QtZmxhbmRlcnMxETAPBgNVBAoM%0ACEVub3ZhdGVzMSYwJAYDVQQDDB1Fbm92YXRlcyBDaGFyZ2VyIEludGVybWVkaWF0%0AZTAeFw0yNTAxMjcxMTIyMTNaFw0zNDEwMjcxMTIyMTNaMGIxCzAJBgNVBAYTAkJF%0AMRYwFAYDVQQIDA1FYXN0LWZsYW5kZXJzMRAwDgYDVQQHDAdMb2tlcmVuMREwDwYD%0AVQQKDAhFbm92YXRlczEWMBQGA1UEAwwNSTIzMjIwMjM5NDU0NDBZMBMGByqGSM49%0AAgEGCCqGSM49AwEHA0IABFIEelLUWYWkL2D5Pm4usBiIv8VZ9Se5g2eefh4orEIj%0AH0r4C5PZC8LzM+9kFih9ig+hSaXfTD1hfUAVBJ+YjHWjbjBsMAsGA1UdDwQEAwIF%0AoDAdBgNVHSUEFjAUBggrBgEFBQcDAgYIKwYBBQUHAwgwHQYDVR0OBBYEFN6Z7JyR%0AwJos2aPXYVJFym6NGNH6MB8GA1UdIwQYMBaAFNWH6uyPSBRgCd0K+QEQT6Wa6SOA%0AMAoGCCqGSM49BAMCA0cAMEQCIHtIFBY4f26HHCUeojyJ25ormBRgyKNpjQmp8lor%0AfpWgAiASdBoNO1G1J8lKKHGmAOoG/zPDk58p8dzxXp0NnUm2/w==%0A-----END%20CERTIFICATE-----%0A-----BEGIN%20CERTIFICATE-----%0AMIICGjCCAcCgAwIBAgIBATAKBggqhkjOPQQDAjBlMQswCQYDVQQGEwJCRTEWMBQG%0AA1UECAwNRWFzdC1mbGFuZGVyczEQMA4GA1UEBwwHTG9rZXJlbjERMA8GA1UECgwI%0ARW5vdmF0ZXMxGTAXBgNVBAMMEEVub3ZhdGVzIFJvb3QgQ0EwHhcNMjMxMTA2MDgw%0AMzM3WhcNNDMxMTAxMDgwMzM3WjBgMQswCQYDVQQGEwJCRTEWMBQGA1UECAwNRWFz%0AdC1mbGFuZGVyczERMA8GA1UECgwIRW5vdmF0ZXMxJjAkBgNVBAMMHUVub3ZhdGVz%0AIENoYXJnZXIgSW50ZXJtZWRpYXRlMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE%0A27N/DsCKJPDH5DATjUQ24UlzZuUGJxOxeZ8G8Xi6YHGPmLt35LgBVuTBetpLE+oE%0Ait/lf+wCP90TIv6qiYCVWKNmMGQwHQYDVR0OBBYEFNWH6uyPSBRgCd0K+QEQT6Wa%0A6SOAMB8GA1UdIwQYMBaAFFzaBVE16vBVkfqyqNMbdB3rf15xMBIGA1UdEwEB/wQI%0AMAYBAf8CAQAwDgYDVR0PAQH/BAQDAgGGMAoGCCqGSM49BAMCA0gAMEUCIBVqFypZ%0AiqoOh3kdmBmc05Bgc9VfqSOEF7IG96H5+0snAiEA1mHPYczxEBFMvgWEd8hr/zC5%0AImb4IX8tL0vYJhrugRY=%0A-----END%20CERTIFICATE-----%0A"
+          const wsOptions = {headers: {"x-amzn-mtls-clientcert": clientCertHeader}}
+
           ws = new WebSocket(
             this.config.centralSystemEndpoint + "/" + this.config.chargerIdentity,
-            "ocpp1.6"
+            "ocpp1.6",
+            wsOptions
           )
 
           return wrapWebsocket(ws)
@@ -194,7 +199,7 @@ export class ChargerSimulator {
       if (!req.connectorId) {
         req.connectorId = this.config.connectorId
       }
-      
+
       return {
         status: this.startTransaction(req, true) ? "Accepted" : "Rejected",
         // status: "Rejected",
@@ -222,14 +227,14 @@ export class ChargerSimulator {
       return {status: "Accepted"}
     },
 
-    ChangeAvailability: async(req) => {
+    ChangeAvailability: async (req) => {
       this.chargePoint.currentConnectorStatus = req.type
       this.chargePoint.currentConnectorId = req.connectorId
 
       return {status: "Accepted"}
     },
 
-    ClearCache: async(req) => {
+    ClearCache: async (req) => {
       return {status: "Accepted"}
     },
 
@@ -246,22 +251,21 @@ export class ChargerSimulator {
     },
 
     currentConnectorId: 1,
-    currentConnectorStatus: 'Available',
+    currentConnectorStatus: "Available",
     TriggerMessage: async (req) => {
-
-      if('BootNotification' === req.requestedMessage) {
+      if ("BootNotification" === req.requestedMessage) {
         this.centralSystem.BootNotification({
           chargePointVendor: "OC",
           chargePointModel: "OCX",
         })
       }
 
-      if('StatusNotification' === req.requestedMessage) {
-        let status = 'Available'
-        if (this.chargePoint.currentConnectorStatus == 'Operative') {
-          status = 'Available'
+      if ("StatusNotification" === req.requestedMessage) {
+        let status = "Available"
+        if (this.chargePoint.currentConnectorStatus == "Operative") {
+          status = "Available"
         } else {
-          status = 'Unavailable'
+          status = "Unavailable"
         }
 
         this.centralSystem.StatusNotification({
@@ -278,13 +282,13 @@ export class ChargerSimulator {
       return {status: "Accepted"}
     },
 
-    UnlockConnector: async(req) => {
+    UnlockConnector: async (req) => {
       return {status: "Unlocked"}
     },
     GetDiagnostics: async (req) => {
       return {fileName: "file.extension"}
     },
-    SendLocalList: async(req) => {
+    SendLocalList: async (req) => {
       return {status: "Accepted"}
     },
   }
