@@ -225,7 +225,6 @@ export class ChargerSimulator {
     ChangeAvailability: async(req) => {
       const isCharging = this.chargePoint.currentConnectorStatus === "Charging"
       if (req.type === "Inoperative" && (this.transactionId || isCharging)) {
-          this.chargePoint.currentConnectorStatus = req.type
           this.chargePoint.currentConnectorId = req.connectorId
           return {status: "Scheduled"}
       }
